@@ -3,11 +3,11 @@ Web-app, that shows current fuel prices, price history and buy recommendation fo
 Check it out: https://annedoesstuff.github.io/budgetBenzin/
 
 ## How It Works
-1. Data Fetching: GitHub Actions workflow runs on a schedule (every hour).
-2. Python Script: The workflow runs a Python script `backend/fetch_prices.py`. Script fetches data for a predefined area from the Tankerkönig API.
-3. Data Storage: Fetched price is appended to a JSON file `data/prices.json`. Entries older than 30 days are removed.
-4. Commit Changes: GitHub Action automatically commits updated `prices.json`.
-5. Frontend Display: `index.html` uses `script.js` to fetch and parse the static `prices.json` file. It then dynamically renders the current price and the historical price chart using Chart.js.
+1. **Data Fetching:** GitHub Actions workflow runs on a schedule (every hour).
+2. **Python Script:** The workflow runs a Python script `backend/fetch_prices.py`. Script fetches data for a predefined area from the Tankerkönig API.
+3. **Data Storage:** Fetched price is appended to a JSON file `data/prices.json`. Entries older than 30 days are removed.
+4. **Commit Changes:** GitHub Action automatically commits updated `prices.json`.
+5. **Frontend Display:** `index.html` uses `script.js` to fetch and parse the static `prices.json` file. It then dynamically renders the current price and the historical price chart using Chart.js.
 
 ## Tech Stack
 - Frontend:
