@@ -4,8 +4,9 @@ import requests
 from datetime import datetime, timezone, timedelta
 
 # # todo: make place dynamic??
-LAT = 51.3552
-LNG = 11.9961
+LAT = 51.3446
+LNG = 11.9780
+
 RADIUS = 5
 FUEL_TYPE = "all"  # e5, e10, diesel, oder all
 OUTPUT_DIR = "data"
@@ -14,14 +15,10 @@ PRICES_HISTORY_FILE = os.path.join(OUTPUT_DIR, "prices.json")
 API_KEY = os.getenv("TANKERKOENIG_API_KEY")
 
 if not API_KEY:
-    raise ValueError("Die Umgebungsvariable TANKERKOENIG_API_KEY ist nicht gesetzt.")
+    raise ValueError("ENV Variable TANKERKOENIG_API_KEY not set.")
 
 
 def fetch_prices():
-    """
-    Fetches the current fuel station prices (and station information) from the Tankerkönig API
-    and stores them in a history file.
-    """
     list_url = f"https://creativecommons.tankerkoenig.de/json/list.php?lat={LAT}&lng={LNG}&rad={RADIUS}&sort=dist&type={FUEL_TYPE}&apikey={API_KEY}"
 
     try:

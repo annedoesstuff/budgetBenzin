@@ -213,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             text: 'Preis in €'
                         },
                         ticks: {
-                           // Preis-Ticks formatieren (z.B. 1.859 €)
                            callback: function(value) {
                                return value.toFixed(3) + ' €';
                            }
