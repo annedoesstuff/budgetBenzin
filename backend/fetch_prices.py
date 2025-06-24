@@ -73,7 +73,7 @@ def fetch_prices():
         history.append(new_entry)
 
         # delete old data -> timeframes (idk if good idea)
-        timeframe = timestamp_utc - timedelta(days=14)
+        timeframe = timestamp_utc - timedelta(days=30)
         history_filtered = [
             entry for entry in history
             if datetime.fromisoformat(entry["timestamp"]) > timeframe
