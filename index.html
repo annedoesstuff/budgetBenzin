@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tankpreis-Tracker Merseburg</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tankpreise in Merseburg</h1>
+            <p>Preisverlauf der letzten 14 Tage</p>
+        </header>
+
+        <section class="controls">
+            <label for="fuel-select">Kraftstoffsorte:</label>
+            <select id="fuel-select">
+                <option value="e5">Super E5</option>
+                <option value="e10">Super E10</option>
+                <option value="diesel">Diesel</option>
+            </select>
+        </section>
+
+        <section id="current-prices">
+            <h2>Aktuelle Preise</h2>
+            <div id="current-prices-container" class="price-grid">
+                <div class="loader"></div>
+            </div>
+        </section>
+
+        <section id="price-history">
+            <h2>Preisverlauf</h2>
+            <div class="chart-container">
+                <canvas id="price-chart"></canvas>
+            </div>
+        </section>
+
+        <footer>
+            <p>Daten via <a href="https://creativecommons.tankerkoenig.de/" target="_blank">Tankerkönig-API</a>. Erstellt mit GitHub Actions & Pages.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
