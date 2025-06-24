@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             priceCard.innerHTML = `
                 <h3>${station.brand || 'Freie Tankstelle'}</h3>
                 <p class="station-name">${station.name}</p>
-                <div class="price">${euro}<sup>${cent}${superScript}</sup> €</div>
+                <div class="price">${euro}${cent}<sup>${superScript}</sup> €</div>
                 <div class="address">${station.street} ${station.houseNumber}, ${station.postCode} ${station.place}</div>
             `;
             currentPricesContainer.appendChild(priceCard);
