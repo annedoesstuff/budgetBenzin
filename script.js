@@ -3,35 +3,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const priceChartCanvas = document.getElementById('price-chart');
     const currentPricesContainer = document.getElementById('current-prices-container');
 
-    const PRICES_URL = './data/prices.json';
-    const STATIONS_URL = './data/stations.json';
+     const PRICES_HISTORY_URL = './data/prices.json';
 
     let chart;
-    let priceData = [];
-    let stationData = {};
+    let priceHistory = [];
 
     const chartColors = [
-        '#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6610f2'
+        '#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1',
+        '#f06292', '#ff8a65', '#a1887f', '#90a4ae'
     ];
 
     async function initializeApp() {
         try {
-            const [pricesResponse, stationsResponse] = await Promise.all([
-                fetch(PRICES_URL, { cache: 'no-store' }),
-                fetch(STATIONS_URL, { cache: 'no-store' })
-            ]);
+            const response = await fetch(PRICES_HISTORY_URL, { cache: 'no-store' });
 
-            if (!pricesResponse.ok || !stationsResponse.ok) {
-                throw new Error('Daten konnten nicht geladen werden.');
+            if (!response.ok) {
+                throw new Error('Could not load data.');
             }
 
-            priceData = await pricesResponse.json();
-            stationData = await stationsResponse.json();
+            priceHistory = await response.json();
+
+            if (!priceHistory || priceHistory.length === 0) {
+                 throw new Error("Price data is empty or in wrong format.");
+            }
 
             updateDashboard();
 
         } catch (error) {
-            console.error('Initialisierungsfehler:', error);
+            console.error('Initializing error:', error);
             currentPricesContainer.innerHTML = `<p>Fehler beim Laden der Preisdaten. Die Datei existiert möglicherweise noch nicht. Bitte warte, bis die GitHub Action das erste Mal durchgelaufen ist.</p>`;
         }
     }
@@ -45,81 +44,74 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayCurrentPrices(fuelType) {
         currentPricesContainer.innerHTML = ''; // clear old content
 
-        const latestTimestamp = priceData[priceData.length - 1];
-        if (!latestTimestamp) return;
+        const latestEntry = priceHistory[priceHistory.length - 1];
+        if (!latestEntry || !latestEntry.stations) {
+            currentPricesContainer.innerHTML = '<p>Keine aktuellen Preisdaten verfügbar.</p>';
+            return;
+        };
 
-        let prices = [];
-        for (const stationId in latestTimestamp.prices) {
-            const priceInfo = latestTimestamp.prices[stationId];
-            if (priceInfo.status === 'open' && priceInfo[fuelType]) {
-                const stationInfo = stationData[stationId];
-                if(stationInfo) {
-                    prices.push({
-                        id: stationId,
-                        name: stationInfo.brand || 'Freie Tankstelle',
-                        address: `${stationInfo.street} ${stationInfo.houseNumber}, ${stationInfo.postCode} ${stationInfo.place}`,
-                        price: priceInfo[fuelType]
-                    });
-                }
-            }
-        }
+        const openStationsWithPrice = latestEntry.stations.filter(
+            station => station.isOpen && typeof station[fuelType] === 'number' && station[fuelType] > 0
+        );
 
-        if (prices.length === 0) {
+        if (openStationsWithPrice.length === 0) {
              currentPricesContainer.innerHTML = `<p>Keine geöffneten Tankstellen mit Preisen für ${fuelType.toUpperCase()} gefunden.</p>`;
              return;
         }
 
-        const cheapestPrice = Math.min(...prices.map(p => p.price));
+        const cheapestPrice = Math.min(...openStationsWithPrice.map(s => s[fuelType]));
+        openStationsWithPrice.sort((a, b) => a[fuelType] - b[fuelType]);
 
-        prices.sort((a, b) => a.price - b.price).forEach(station => {
+        openStationsWithPrice.forEach(station => {
             const priceCard = document.createElement('div');
             priceCard.className = 'price-card';
-            if (station.price === cheapestPrice) {
+            if (station[fuelType] === cheapestPrice) {
                 priceCard.classList.add('cheapest');
             }
 
-            const priceParts = station.price.toString().split('.');
-            const euro = priceParts[0];
-            const cent = priceParts[1].padEnd(2, '0').slice(0, 2);
-            const superScript = priceParts[1].padEnd(3, '0')[2];
+            const priceStr = station[fuelType].toFixed(3).toString();
+            const euro = priceStr.slice(0, -2);
+            const cent = priceStr.slice(-2, -1);
+            const superScript = priceStr.slice(-1);
 
             priceCard.innerHTML = `
-                <h3>${station.name}</h3>
-                <div class="price">${euro}.${cent}<sup>${superScript}</sup> €</div>
-                <div class="address">${station.address}</div>
+                <h3>${station.brand || 'Freie Tankstelle'}</h3>
+                <p class="station-name">${station.name}</p>
+                <div class="price">${euro}<sup>${cent}${superScript}</sup> €</div>
+                <div class="address">${station.street} ${station.houseNumber}, ${station.postCode} ${station.place}</div>
             `;
             currentPricesContainer.appendChild(priceCard);
         });
     }
 
+
     function renderChart(fuelType) {
-        const datasets = [];
-        const stationIds = Object.keys(stationData);
+        const stationDataSets = {};
 
-        stationIds.forEach((id, index) => {
-            const stationInfo = stationData[id];
-            const dataPoints = [];
+        priceHistory.forEach(entry => {
+            const timestamp = new Date(entry.timestamp);
 
-            priceData.forEach(entry => {
-                const priceInfo = entry.prices[id];
-                if (priceInfo && priceInfo[fuelType]) {
-                    dataPoints.push({
-                        x: new Date(entry.timestamp),
-                        y: priceInfo[fuelType]
+            entry.stations.forEach(station => {
+                if (!stationDataSets[station.id]) {
+                    stationDataSets[station.id] = {
+                        label: station.brand || station.name,
+                        data: [],
+                        borderColor: chartColors[Object.keys(stationDataSets).length % chartColors.length],
+                        tension: 0.1,
+                        fill: false
+                    };
+                }
+
+                if (station.isOpen && typeof station[fuelType] === 'number' && station[fuelType] > 0) {
+                    stationDataSets[station.id].data.push({
+                        x: timestamp,
+                        y: station[fuelType]
                     });
                 }
             });
-
-            if (dataPoints.length > 1) { // only draw if history exists
-                datasets.push({
-                    label: stationInfo.brand || 'Freie Tankstelle',
-                    data: dataPoints,
-                    borderColor: chartColors[index % chartColors.length],
-                    tension: 0.1,
-                    fill: false
-                });
-            }
         });
+
+        const finalDatasets = Object.values(stationDataSets).filter(ds => ds.data.length > 1);
 
         if (chart) {
             chart.destroy();
@@ -128,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chart = new Chart(priceChartCanvas, {
             type: 'line',
             data: {
-                datasets: datasets
+                datasets: finalDatasets
             },
             options: {
                 responsive: true,
@@ -151,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             text: 'Preis in €'
                         },
                         ticks: {
+                           // Preis-Ticks formatieren (z.B. 1.859 €)
                            callback: function(value) {
                                return value.toFixed(3) + ' €';
                            }
@@ -169,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
     fuelSelect.addEventListener('change', updateDashboard);
+
     initializeApp();
 });
