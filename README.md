@@ -1,5 +1,6 @@
 # budgetBenzin
 Web-app, that shows current fuel prices, price history and buy recommendation for a specified area (Merseburg). 
+
 Check it out: https://annedoesstuff.github.io/budgetBenzin/
 
 ## How It Works
