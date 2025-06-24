@@ -22,7 +22,7 @@ if not API_KEY:
 
 def get_station_infos(station_ids):
     ids_str = ",".join(station_ids)
-    url = f"https://creativecommons.tankerkoenig.de/json/detail.php?ids[]={ids_str}&apikey={API_KEY}"
+    url = f"https://creativecommons.tankerkoenig.de/json/detail.php?ids={ids_str}&apikey={API_KEY}"
 
     try:
         response = requests.get(url)
@@ -63,7 +63,7 @@ def fetch_prices():
             get_station_infos(station_ids)
 
         ids_str = ",".join(station_ids)
-        prices_url =  f"https://creativecommons.tankerkoenig.de/json/prices.php?ids[]={ids_str}&apikey={API_KEY}"
+        prices_url =  f"https://creativecommons.tankerkoenig.de/json/prices.php?ids={ids_str}&apikey={API_KEY}"
 
         prices_response = requests.get(prices_url)
         prices_response.raise_for_status()
@@ -94,7 +94,7 @@ def fetch_prices():
         timeframe = datetime.now(timezone.utc) - timedelta(days=14)
         history_filtered = [
             entry for entry in history
-            if datetime.fromisoformat(entry["timestamp"]) > timeframe
+            if datetime.fromtimestamp(entry["timestamp"], tz=timezone.utc) > timeframe
         ]
 
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
