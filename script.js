@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedFuel = fuelSelect.value;
         displayCurrentPrices(selectedFuel);
         renderChart(selectedFuel);
+        generateRecommendation(selectedFuel);
     }
 
     function displayCurrentPrices(fuelType) {
@@ -74,14 +75,83 @@ document.addEventListener('DOMContentLoaded', () => {
             const cent = priceStr.slice(-2, -1);
             const superScript = priceStr.slice(-1);
 
+            const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${station.lat},${station.lng}`;
+
             priceCard.innerHTML = `
                 <h3>${station.brand || 'Freie Tankstelle'}</h3>
                 <p class="station-name">${station.name}</p>
                 <div class="price">${euro}${cent}<sup>${superScript}</sup> €</div>
                 <div class="address">${station.street} ${station.houseNumber}, ${station.postCode} ${station.place}</div>
+                
+                <a href="${mapsUrl}" target="_blank" class="maps-link">Auf Google Maps öffnen</a>
             `;
             currentPricesContainer.appendChild(priceCard);
         });
+    }
+
+
+    function generateRecommendation(fuelType) {
+        const recommendationContainer = document.getElementById('recommendation-text');
+        if (!priceHistory || priceHistory.length < 2) {
+            recommendationContainer.innerHTML = 'Nicht genügend Daten für eine Empfehlung.';
+            return;
+        }
+
+        const latestEntry = priceHistory[priceHistory.length - 1];
+        const openStationsWithPrice = latestEntry.stations.filter(
+            s => s.isOpen && typeof s[fuelType] === 'number' && s[fuelType] > 0
+        );
+
+        if (openStationsWithPrice.length === 0) {
+            recommendationContainer.innerHTML = 'Keine Preisdaten für eine Empfehlung verfügbar.';
+            return;
+        }
+        const currentCheapestPrice = Math.min(...openStationsWithPrice.map(s => s[fuelType]));
+
+        const twentyFourHoursAgo = new Date(new Date(latestEntry.timestamp).getTime() - (24 * 60 * 60 * 1000));
+        const recentHistory = priceHistory.filter(entry => new Date(entry.timestamp) > twentyFourHoursAgo);
+
+        let recentMinPrice = currentCheapestPrice;
+        let recentAvgPrice = 0;
+        let priceCount = 0;
+
+        recentHistory.forEach(entry => {
+            entry.stations.forEach(station => {
+                if (station.isOpen && typeof station[fuelType] === 'number' && station[fuelType] > 0) {
+                    if (station[fuelType] < recentMinPrice) {
+                        recentMinPrice = station[fuelType];
+                    }
+                    recentAvgPrice += station[fuelType];
+                    priceCount++;
+                }
+            });
+        });
+        recentAvgPrice = priceCount > 0 ? recentAvgPrice / priceCount : currentCheapestPrice;
+
+        let recommendation = '';
+
+        // is price low?
+        if (currentCheapestPrice <= recentMinPrice) {
+            recommendation = `Jetzt <strong class="tanken">TANKEN</strong>! Der aktuelle Preis von ${currentCheapestPrice.toFixed(3)} € ist der günstigste der letzten 24 Stunden.`;
+        }
+        // price blow average?
+        else if (currentCheapestPrice < recentAvgPrice) {
+            const difference = (recentAvgPrice - currentCheapestPrice).toFixed(3);
+            recommendation = `Guter Zeitpunkt zum <strong class="tanken">TANKEN</strong>. Der Preis liegt ${difference} € unter dem 24h-Durchschnitt.`;
+        }
+        // price above average?
+        else {
+            const now = new Date();
+            const currentHour = now.getHours();
+            // prices tend to fall between 18:00 and 22:00
+            if (currentHour < 18) {
+                recommendation = `Besser <strong class="wait">WARTEN</strong>. Der Preis ist aktuell eher hoch. Tendenziell fallen Preise am späten Nachmittag/Abend.`;
+            } else {
+                recommendation = `Eher <strong class="wait">WARTEN</strong>. Der Preis ist höher als der Durchschnitt der letzten 24 Stunden. Falls möglich, bis morgen Abend warten.`;
+            }
+        }
+
+        recommendationContainer.innerHTML = recommendation;
     }
 
 
