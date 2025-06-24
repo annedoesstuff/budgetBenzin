@@ -3,48 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tankpreis-Tracker Merseburg</title>
+    <title>budgetBenzin Merseburg</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Tankpreise in Merseburg</h1>
-            <p>Preisverlauf der letzten 30 Tage</p>
+            <h1>budgetBenzin Merseburg</h1>
+            <p class="subtitle">Bleibe informiert über aktuelle Kraftstoffpreise und den Preisverlauf der letzten 30 Tage.</p>
         </header>
 
-        <section class="controls">
-            <label for="fuel-select">Kraftstoffsorte:</label>
-            <select id="fuel-select">
-                <option value="e5">Super E5</option>
-                <option value="e10">Super E10</option>
-                <option value="diesel">Diesel</option>
-            </select>
+        <section class="controls-section">
+            <div class="control-group">
+                <label for="fuel-select" class="control-label"><i class="fas fa-gas-pump"></i> Kraftstoffsorte:</label>
+                <div class="custom-select-wrapper">
+                    <select id="fuel-select" class="custom-select">
+                        <option value="e5">Super E5</option>
+                        <option value="e10">Super E10</option>
+                        <option value="diesel">Diesel</option>
+                    </select>
+                    <span class="select-arrow"></span>
+                </div>
+            </div>
         </section>
 
         <section id="recommendation">
-            <h2>Empfehlung</h2>
-            <div id="recommendation-text" class="recommendation-box">
+            <h2><i class="fas fa-lightbulb"></i> Empfehlung</h2>
+            <div id="recommendation-text" class="recommendation-box card">
                 <div class="loader"></div>
             </div>
         </section>
 
         <section id="current-prices">
-            <h2>Aktuelle Preise</h2>
+            <h2><i class="fas fa-tags"></i> Aktuelle Preise</h2>
             <div id="current-prices-container" class="price-grid">
                 <div class="loader"></div>
             </div>
         </section>
 
         <section id="price-history">
-            <h2>Preisverlauf</h2>
-            <div class="chart-container">
+            <h2><i class="fas fa-chart-line"></i> Preisverlauf</h2>
+            <div class="chart-container card">
                 <canvas id="price-chart"></canvas>
             </div>
         </section>
 
         <footer>
-            <p>Daten via <a href="https://creativecommons.tankerkoenig.de/" target="_blank">Tankerkönig-API</a>. Erstellt mit GitHub Actions & Pages.</p>
+            <p>Daten via <a href="https://creativecommons.tankerkoenig.de/" target="_blank">Tankerkönig-API</a>. Erstellt mit <a href="https://docs.github.com/en/actions" target="_blank">GitHub Actions</a> & <a href="https://pages.github.com/" target="_blank">Pages</a>.</p>
         </footer>
     </div>
 
