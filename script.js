@@ -145,22 +145,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const currentHour = now.getHours();
 
         if (currentCheapestPrice <= recentMinPrice) {
-            recommendation = `Jetzt <strong class="tanken">TANKEN</strong>! Der aktuelle Preis von ${currentCheapestPrice.toFixed(3).replace('.', ',')} € ist der günstigste der letzten 24 Stunden.`;
+            recommendation = `Jetzt <strong class="tanken"> TANKEN </strong>! Der aktuelle Preis von ${currentCheapestPrice.toFixed(3).replace('.', ',')} € ist der günstigste der letzten 24 Stunden.`;
             recommendationClass = 'tanken';
         } else if (currentCheapestPrice < recentAvgPrice) {
             const difference = (recentAvgPrice - currentCheapestPrice).toFixed(3);
-            recommendation = `Guter Zeitpunkt zum <strong class="tanken">TANKEN</strong>. Der Preis liegt ${difference.replace('.', ',')} € unter dem 24h-Durchschnitt.`;
+            recommendation = `Guter Zeitpunkt zum <strong class="tanken"> TANKEN </strong>. Der Preis liegt ${difference.replace('.', ',')} € unter dem 24h-Durchschnitt.`;
             recommendationClass = 'tanken';
         } else {
             // prices tend to fall between 18:00 and 22:00
             if (currentHour >= 18 && currentHour < 22) {
-                recommendation = `Die Preise sind aktuell etwas höher. Es könnte sich lohnen, noch bis zum späten Abend zu <strong class="wait">WARTEN</strong>, da die Preise tendenziell dann fallen.`;
+                recommendation = `Die Preise sind aktuell etwas höher. Es könnte sich lohnen, noch bis zum späten Abend zu <strong class="wait"> WARTEN </strong>, da die Preise tendenziell dann fallen.`;
                 recommendationClass = 'wait';
             } else if (currentHour >= 22 || currentHour < 6) {
-                recommendation = `Der Preis ist aktuell überdurchschnittlich. Wenn möglich, <strong class="wait">WARTEN</strong> Sie, da die Preise am Tag wieder sinken könnten.`;
+                recommendation = `Der Preis ist aktuell überdurchschnittlich. Wenn möglich, <strong class="wait"> WARTEN </strong> Sie, da die Preise am Tag wieder sinken könnten.`;
                 recommendationClass = 'wait';
             } else {
-                recommendation = `Der Preis ist aktuell eher hoch. Falls möglich, bis zum späten Nachmittag/Abend <strong class="wait">WARTEN</strong>.`;
+                recommendation = `Der Preis ist aktuell eher hoch. Falls möglich, bis zum späten Nachmittag/Abend <strong class="wait"> WARTEN </strong>.`;
                 recommendationClass = 'wait';
             }
         }
