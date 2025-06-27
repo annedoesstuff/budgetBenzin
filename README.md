@@ -12,13 +12,11 @@ Check it out: https://annedoesstuff.github.io/budgetBenzin/
 
 ## Tech Stack
 - Frontend:
-  - HTML5
-  - CSS (Variables, Grid)
+  - HTML, CSS
   - JavaScript
   - Chart.js
-  - date-fns adapter for time-series charts
 - Data Fetching & Automation:
-  - Python 3.10
+  - Python
   - requests lib
   - GitHub Actions
 - API & Hosting:
